@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style type="text/css">
+            @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@400;500;600;700&amp;family=Red+Hat+Display:wght@400;700&amp;display=swap');
+        </style>
+        <marker id="arrowhead" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+            <polygon points="0 0, 6 2.5, 0 5" fill="#90a4ae"/>
+        </marker>
+        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+        </filter>
+    </defs>
+
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" fill="#1565c0" font-weight="700" font-size="20" font-family="'Red Hat Display', sans-serif">SWIM DNOTAM Consumer</text>
+    <text x="400" y="50" text-anchor="middle" fill="#64b5f6" font-size="12" font-family="'Red Hat Text', sans-serif">Event Processing Flow</text>
+
+    <!-- External: Subscription Manager -->
+    <rect x="20" y="80" width="140" height="70" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="80" width="140" height="24" rx="8" fill="#f57c00"/>
+    <rect x="20" y="98" width="140" height="6" fill="#f57c00"/>
+    <text x="90" y="98" text-anchor="middle" fill="#fff" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">Subscription Mgr</text>
+    <text x="90" y="120" text-anchor="middle" fill="#e65100" font-size="10" font-family="'Red Hat Text', sans-serif">REST API (mTLS)</text>
+    <text x="90" y="135" text-anchor="middle" fill="#ff9800" font-size="9" font-family="'Red Hat Text', sans-serif">External Service</text>
+
+    <!-- External: AMQP Broker -->
+    <rect x="20" y="170" width="140" height="70" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="170" width="140" height="24" rx="8" fill="#f57c00"/>
+    <rect x="20" y="188" width="140" height="6" fill="#f57c00"/>
+    <text x="90" y="188" text-anchor="middle" fill="#fff" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">AMQP Broker</text>
+    <text x="90" y="210" text-anchor="middle" fill="#e65100" font-size="10" font-family="'Red Hat Text', sans-serif">AMQP 1.0 (mTLS)</text>
+    <text x="90" y="225" text-anchor="middle" fill="#ff9800" font-size="9" font-family="'Red Hat Text', sans-serif">External Service</text>
+
+    <!-- Consumer Box -->
+    <rect x="200" y="65" width="380" height="320" rx="12" fill="none" stroke="#1565c0" stroke-width="2"/>
+    <rect x="200" y="65" width="380" height="32" rx="12" fill="#1565c0"/>
+    <rect x="200" y="90" width="380" height="7" fill="#1565c0"/>
+    <text x="390" y="88" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="14" font-family="'Red Hat Display', sans-serif">DNOTAM Consumer</text>
+
+    <!-- Reconciliation Service -->
+    <rect x="220" y="110" width="150" height="50" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="295" y="135" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">Reconciliation</text>
+    <text x="295" y="150" text-anchor="middle" fill="#1565c0" font-size="9" font-family="'Red Hat Text', sans-serif">Service</text>
+
+    <!-- AMQP Consumer -->
+    <rect x="220" y="175" width="150" height="50" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="295" y="200" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">AMQP Consumer</text>
+    <text x="295" y="215" text-anchor="middle" fill="#1565c0" font-size="9" font-family="'Red Hat Text', sans-serif">Vert.x Client</text>
+
+    <!-- Event Processor -->
+    <rect x="220" y="240" width="150" height="65" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="295" y="262" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">Event Processor</text>
+    <text x="295" y="277" text-anchor="middle" fill="#1565c0" font-size="9" font-family="'Red Hat Text', sans-serif">XSD Validation</text>
+    <text x="295" y="292" text-anchor="middle" fill="#1565c0" font-size="9" font-family="'Red Hat Text', sans-serif">Inbox Pattern</text>
+
+    <!-- Kafka Producer -->
+    <rect x="220" y="320" width="150" height="50" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="295" y="345" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">Kafka Producer</text>
+    <text x="295" y="360" text-anchor="middle" fill="#1565c0" font-size="9" font-family="'Red Hat Text', sans-serif">Outbox Pattern</text>
+
+    <!-- MongoDB -->
+    <rect x="410" y="175" width="150" height="130" rx="6" fill="#424242" stroke="#757575" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="410" y="175" width="150" height="24" rx="6" fill="#757575"/>
+    <rect x="410" y="193" width="150" height="6" fill="#757575"/>
+    <text x="485" y="193" text-anchor="middle" fill="#fff" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">MongoDB</text>
+    <text x="485" y="220" text-anchor="middle" fill="#e0e0e0" font-size="9" font-family="'Red Hat Text', sans-serif">subscriptions</text>
+    <text x="485" y="240" text-anchor="middle" fill="#e0e0e0" font-size="9" font-family="'Red Hat Text', sans-serif">inbox_messages</text>
+    <text x="485" y="260" text-anchor="middle" fill="#e0e0e0" font-size="9" font-family="'Red Hat Text', sans-serif">dnotam_events</text>
+    <text x="485" y="280" text-anchor="middle" fill="#e0e0e0" font-size="9" font-family="'Red Hat Text', sans-serif">dead_letter_queue</text>
+
+    <!-- Kafka Topics -->
+    <rect x="610" y="110" width="170" height="260" rx="8" fill="#424242" stroke="#757575" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="610" y="110" width="170" height="28" rx="8" fill="#757575"/>
+    <rect x="610" y="130" width="170" height="8" fill="#757575"/>
+    <text x="695" y="130" text-anchor="middle" fill="#fff" font-weight="700" font-size="12" font-family="'Red Hat Display', sans-serif">Kafka Topics</text>
+    <text x="695" y="160" text-anchor="middle" fill="#4caf50" font-size="10" font-family="'Red Hat Text', sans-serif">closure-topic</text>
+    <text x="695" y="185" text-anchor="middle" fill="#2196f3" font-size="10" font-family="'Red Hat Text', sans-serif">restriction-topic</text>
+    <text x="695" y="210" text-anchor="middle" fill="#ff9800" font-size="10" font-family="'Red Hat Text', sans-serif">surface-condition-topic</text>
+    <text x="695" y="235" text-anchor="middle" fill="#9c27b0" font-size="10" font-family="'Red Hat Text', sans-serif">airspace-topic</text>
+    <text x="695" y="260" text-anchor="middle" fill="#f44336" font-size="10" font-family="'Red Hat Text', sans-serif">hazards-navaids-topic</text>
+    <text x="695" y="285" text-anchor="middle" fill="#607d8b" font-size="10" font-family="'Red Hat Text', sans-serif">others-topic</text>
+    <text x="695" y="320" text-anchor="middle" fill="#bdbdbd" font-style="italic" font-size="9" font-family="'Red Hat Text', sans-serif">Routed by</text>
+    <text x="695" y="335" text-anchor="middle" fill="#bdbdbd" font-style="italic" font-size="9" font-family="'Red Hat Text', sans-serif">Business Intent</text>
+
+    <!-- Arrows: External to Consumer -->
+    <line x1="165" y1="115" x2="215" y2="130" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="165" y1="205" x2="215" y2="200" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Arrows: Internal flow -->
+    <line x1="295" y1="165" x2="295" y2="170" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="295" y1="230" x2="295" y2="235" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="295" y1="310" x2="295" y2="315" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Arrows: To MongoDB -->
+    <line x1="375" y1="270" x2="405" y2="250" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Arrows: To Kafka -->
+    <line x1="375" y1="345" x2="605" y2="240" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+</svg>
