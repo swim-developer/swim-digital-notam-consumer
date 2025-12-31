@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 850 480" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 920 720" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <style type="text/css">
             @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@400;500;600;700&amp;family=Red+Hat+Display:wght@400;700&amp;display=swap');
@@ -12,92 +12,129 @@
         </filter>
     </defs>
 
-    <!-- Title -->
-    <text x="425" y="30" text-anchor="middle" fill="#1565c0" font-weight="700" font-size="22" font-family="'Red Hat Display', sans-serif">SWIM DNOTAM Consumer</text>
-    <text x="425" y="52" text-anchor="middle" fill="#64b5f6" font-size="14" font-family="'Red Hat Text', sans-serif">Event Processing Flow</text>
+    <!-- Title with Badge -->
+    <text x="460" y="30" text-anchor="middle" fill="#1565c0" font-weight="700" font-size="22" font-family="'Red Hat Display', sans-serif">SWIM DNOTAM Consumer</text>
+    <rect x="680" y="15" width="180" height="24" rx="12" fill="#ffc107"/>
+    <text x="770" y="32" text-anchor="middle" fill="#000" font-weight="600" font-size="11" font-family="'Red Hat Text', sans-serif">SWIM-TI Yellow Profile</text>
+    <text x="460" y="52" text-anchor="middle" fill="#64b5f6" font-size="14" font-family="'Red Hat Text', sans-serif">Event Processing &amp; Distribution</text>
 
-    <!-- External: Subscription Manager API -->
-    <rect x="20" y="95" width="150" height="75" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
-    <rect x="20" y="95" width="150" height="26" rx="8" fill="#f57c00"/>
-    <rect x="20" y="115" width="150" height="6" fill="#f57c00"/>
-    <text x="95" y="115" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">Subscription API</text>
-    <text x="95" y="140" text-anchor="middle" fill="#e65100" font-size="12" font-family="'Red Hat Text', sans-serif">REST (mTLS)</text>
-    <text x="95" y="158" text-anchor="middle" fill="#ff9800" font-size="11" font-family="'Red Hat Text', sans-serif">External Service</text>
+    <!-- ==================== INTERNAL ENVIRONMENT BOX (Left Side) ==================== -->
+    <rect x="20" y="80" width="580" height="620" rx="12" fill="none" stroke="#1565c0" stroke-width="2"/>
+    <rect x="20" y="80" width="580" height="34" rx="12" fill="#1565c0"/>
+    <rect x="20" y="107" width="580" height="7" fill="#1565c0"/>
+    <text x="310" y="105" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="15" font-family="'Red Hat Display', sans-serif">Internal Environment — ANSP</text>
 
-    <!-- External: AMQP Broker -->
-    <rect x="20" y="215" width="150" height="75" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
-    <rect x="20" y="215" width="150" height="26" rx="8" fill="#f57c00"/>
-    <rect x="20" y="235" width="150" height="6" fill="#f57c00"/>
-    <text x="95" y="235" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">AMQP Broker</text>
-    <text x="95" y="260" text-anchor="middle" fill="#e65100" font-size="12" font-family="'Red Hat Text', sans-serif">AMQP 1.0 (mTLS)</text>
-    <text x="95" y="278" text-anchor="middle" fill="#ff9800" font-size="11" font-family="'Red Hat Text', sans-serif">External Service</text>
+    <!-- ==================== OBSERVABILITY (Top Left inside Internal) ==================== -->
+    <rect x="40" y="130" width="180" height="120" rx="8" fill="#1a237e" stroke="#3949ab" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="40" y="130" width="180" height="30" rx="8" fill="#3949ab"/>
+    <rect x="40" y="152" width="180" height="8" fill="#3949ab"/>
+    <text x="130" y="152" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Observability</text>
+    
+    <text x="80" y="185" text-anchor="middle" fill="#ff9800" font-weight="600" font-size="12" font-family="'Red Hat Text', sans-serif">Prometheus</text>
+    <text x="175" y="185" text-anchor="middle" fill="#f06292" font-weight="600" font-size="12" font-family="'Red Hat Text', sans-serif">Grafana</text>
+    
+    <text x="80" y="215" text-anchor="middle" fill="#4dd0e1" font-weight="600" font-size="12" font-family="'Red Hat Text', sans-serif">Tempo</text>
+    <text x="175" y="215" text-anchor="middle" fill="#81c784" font-weight="600" font-size="12" font-family="'Red Hat Text', sans-serif">OpenTelemetry</text>
+    
+    <text x="130" y="240" text-anchor="middle" fill="#9fa8da" font-size="11" font-family="'Red Hat Text', sans-serif">Metrics | Tracing | Dashboards</text>
 
-    <!-- Consumer Box -->
-    <rect x="200" y="65" width="380" height="395" rx="12" fill="none" stroke="#1565c0" stroke-width="2"/>
-    <rect x="200" y="65" width="380" height="34" rx="12" fill="#1565c0"/>
-    <rect x="200" y="92" width="380" height="7" fill="#1565c0"/>
-    <text x="390" y="90" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="15" font-family="'Red Hat Display', sans-serif">DNOTAM Consumer</text>
+    <!-- ==================== MONGODB (Left inside Internal) ==================== -->
+    <rect x="40" y="280" width="180" height="180" rx="8" fill="#424242" stroke="#757575" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="40" y="280" width="180" height="30" rx="8" fill="#757575"/>
+    <rect x="40" y="302" width="180" height="8" fill="#757575"/>
+    <text x="130" y="302" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">MongoDB</text>
+    <text x="130" y="345" text-anchor="middle" fill="#e0e0e0" font-size="13" font-family="'Red Hat Text', sans-serif">subscriptions</text>
+    <text x="130" y="375" text-anchor="middle" fill="#e0e0e0" font-size="13" font-family="'Red Hat Text', sans-serif">inbox_messages</text>
+    <text x="130" y="405" text-anchor="middle" fill="#e0e0e0" font-size="13" font-family="'Red Hat Text', sans-serif">dnotam_events</text>
+    <text x="130" y="435" text-anchor="middle" fill="#e0e0e0" font-size="13" font-family="'Red Hat Text', sans-serif">dead_letter_queue</text>
+
+    <!-- ==================== KAFKA TOPICS (Left inside Internal) ==================== -->
+    <rect x="40" y="490" width="180" height="190" rx="8" fill="#424242" stroke="#757575" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="40" y="490" width="180" height="30" rx="8" fill="#757575"/>
+    <rect x="40" y="512" width="180" height="8" fill="#757575"/>
+    <text x="130" y="512" text-anchor="middle" fill="#fff" font-weight="700" font-size="14" font-family="'Red Hat Display', sans-serif">Kafka Topics</text>
+    <text x="130" y="555" text-anchor="middle" fill="#4caf50" font-size="13" font-family="'Red Hat Text', sans-serif">closure-topic</text>
+    <text x="130" y="582" text-anchor="middle" fill="#2196f3" font-size="13" font-family="'Red Hat Text', sans-serif">restriction-topic</text>
+    <text x="130" y="609" text-anchor="middle" fill="#ff9800" font-size="13" font-family="'Red Hat Text', sans-serif">surface-condition-topic</text>
+    <text x="130" y="636" text-anchor="middle" fill="#9c27b0" font-size="13" font-family="'Red Hat Text', sans-serif">airspace-topic</text>
+    <text x="130" y="668" text-anchor="middle" fill="#bdbdbd" font-style="italic" font-size="11" font-family="'Red Hat Text', sans-serif">Routed by Business Intent</text>
+
+    <!-- ==================== CONSUMER BOX (Right inside Internal Environment) ==================== -->
+    <rect x="300" y="130" width="280" height="550" rx="12" fill="none" stroke="#42a5f5" stroke-width="2"/>
+    <rect x="300" y="130" width="280" height="34" rx="12" fill="#42a5f5"/>
+    <rect x="300" y="157" width="280" height="7" fill="#42a5f5"/>
+    <text x="440" y="155" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="16" font-family="'Red Hat Display', sans-serif">DNOTAM Consumer</text>
+
+    <!-- Quarkus + Cloud-Native badges -->
+    <rect x="320" y="175" width="75" height="20" rx="10" fill="#4695eb"/>
+    <text x="357" y="190" text-anchor="middle" fill="#fff" font-weight="600" font-size="10" font-family="'Red Hat Text', sans-serif">Quarkus</text>
+    <rect x="405" y="175" width="90" height="20" rx="10" fill="#0db7ed"/>
+    <text x="450" y="190" text-anchor="middle" fill="#fff" font-weight="600" font-size="10" font-family="'Red Hat Text', sans-serif">Cloud-Native</text>
 
     <!-- Subscription Service -->
-    <rect x="220" y="115" width="160" height="60" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
-    <text x="300" y="138" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">Subscription</text>
-    <text x="300" y="155" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">Management</text>
-    <text x="300" y="170" text-anchor="middle" fill="#1976d2" font-size="10" font-family="'Red Hat Text', sans-serif">(Reconciliation)</text>
+    <rect x="320" y="210" width="240" height="70" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="440" y="240" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Subscription Management</text>
+    <text x="440" y="265" text-anchor="middle" fill="#1565c0" font-size="12" font-family="'Red Hat Text', sans-serif">Reconciliation Service</text>
 
     <!-- AMQP Consumer -->
-    <rect x="220" y="200" width="160" height="55" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
-    <text x="300" y="227" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">AMQP Consumer</text>
-    <text x="300" y="245" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">Vert.x Client</text>
+    <rect x="320" y="310" width="240" height="70" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="440" y="340" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">AMQP Consumer</text>
+    <text x="440" y="365" text-anchor="middle" fill="#1565c0" font-size="12" font-family="'Red Hat Text', sans-serif">Vert.x Client</text>
 
     <!-- Event Processor -->
-    <rect x="220" y="280" width="160" height="85" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
-    <text x="300" y="303" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">Event Processor</text>
-    <text x="300" y="322" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">XSD Validation</text>
-    <text x="300" y="340" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">Schematron</text>
-    <text x="300" y="358" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">Inbox Pattern</text>
+    <rect x="320" y="410" width="240" height="95" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="440" y="440" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Event Processor</text>
+    <text x="440" y="465" text-anchor="middle" fill="#1565c0" font-size="12" font-family="'Red Hat Text', sans-serif">XSD Validation + Schematron</text>
+    <text x="440" y="490" text-anchor="middle" fill="#ff8f00" font-size="11" font-family="'Red Hat Text', sans-serif">Inbox Pattern + GraphQL API</text>
+
+    <!-- Fault Tolerance -->
+    <rect x="320" y="535" width="240" height="60" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="440" y="565" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Fault Tolerance</text>
+    <text x="440" y="585" text-anchor="middle" fill="#1565c0" font-size="12" font-family="'Red Hat Text', sans-serif">Retry / CircuitBreaker / Bulkhead</text>
 
     <!-- Kafka Producer -->
-    <rect x="220" y="390" width="160" height="55" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
-    <text x="300" y="417" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">Kafka Producer</text>
-    <text x="300" y="435" text-anchor="middle" fill="#1565c0" font-size="11" font-family="'Red Hat Text', sans-serif">Outbox Pattern</text>
+    <rect x="320" y="625" width="240" height="45" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="440" y="655" text-anchor="middle" fill="#0d47a1" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Kafka Producer (Outbox)</text>
 
-    <!-- MongoDB -->
-    <rect x="410" y="200" width="150" height="165" rx="6" fill="#424242" stroke="#757575" stroke-width="1.5" filter="url(#shadow)"/>
-    <rect x="410" y="200" width="150" height="26" rx="6" fill="#757575"/>
-    <rect x="410" y="220" width="150" height="6" fill="#757575"/>
-    <text x="485" y="220" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="'Red Hat Text', sans-serif">MongoDB</text>
-    <text x="485" y="255" text-anchor="middle" fill="#e0e0e0" font-size="12" font-family="'Red Hat Text', sans-serif">subscriptions</text>
-    <text x="485" y="283" text-anchor="middle" fill="#e0e0e0" font-size="12" font-family="'Red Hat Text', sans-serif">inbox_messages</text>
-    <text x="485" y="311" text-anchor="middle" fill="#e0e0e0" font-size="12" font-family="'Red Hat Text', sans-serif">dnotam_events</text>
-    <text x="485" y="339" text-anchor="middle" fill="#e0e0e0" font-size="12" font-family="'Red Hat Text', sans-serif">dead_letter_queue</text>
+    <!-- ==================== EXTERNAL SERVICES (Right - Outside Internal Environment) ==================== -->
+    
+    <!-- External: Subscription Manager API -->
+    <rect x="720" y="200" width="160" height="100" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="720" y="200" width="160" height="30" rx="8" fill="#f57c00"/>
+    <rect x="720" y="222" width="160" height="8" fill="#f57c00"/>
+    <text x="800" y="222" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">Subscription API</text>
+    <text x="800" y="255" text-anchor="middle" fill="#e65100" font-size="13" font-family="'Red Hat Text', sans-serif">REST (mTLS)</text>
+    <text x="800" y="280" text-anchor="middle" fill="#ff9800" font-size="12" font-family="'Red Hat Text', sans-serif">External Provider</text>
 
-    <!-- Kafka Topics -->
-    <rect x="620" y="115" width="200" height="330" rx="8" fill="#424242" stroke="#757575" stroke-width="2" filter="url(#shadow)"/>
-    <rect x="620" y="115" width="200" height="30" rx="8" fill="#757575"/>
-    <rect x="620" y="137" width="200" height="8" fill="#757575"/>
-    <text x="720" y="138" text-anchor="middle" fill="#fff" font-weight="700" font-size="14" font-family="'Red Hat Display', sans-serif">Kafka Topics</text>
-    <text x="720" y="180" text-anchor="middle" fill="#4caf50" font-size="13" font-family="'Red Hat Text', sans-serif">closure-topic</text>
-    <text x="720" y="212" text-anchor="middle" fill="#2196f3" font-size="13" font-family="'Red Hat Text', sans-serif">restriction-topic</text>
-    <text x="720" y="244" text-anchor="middle" fill="#ff9800" font-size="13" font-family="'Red Hat Text', sans-serif">surface-condition-topic</text>
-    <text x="720" y="276" text-anchor="middle" fill="#9c27b0" font-size="13" font-family="'Red Hat Text', sans-serif">airspace-topic</text>
-    <text x="720" y="308" text-anchor="middle" fill="#f44336" font-size="13" font-family="'Red Hat Text', sans-serif">hazards-navaids-topic</text>
-    <text x="720" y="340" text-anchor="middle" fill="#607d8b" font-size="13" font-family="'Red Hat Text', sans-serif">others-topic</text>
-    <text x="720" y="395" text-anchor="middle" fill="#bdbdbd" font-style="italic" font-size="11" font-family="'Red Hat Text', sans-serif">Routed by</text>
-    <text x="720" y="412" text-anchor="middle" fill="#bdbdbd" font-style="italic" font-size="11" font-family="'Red Hat Text', sans-serif">Business Intent</text>
+    <!-- External: AMQP Broker -->
+    <rect x="720" y="345" width="160" height="100" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="720" y="345" width="160" height="30" rx="8" fill="#f57c00"/>
+    <rect x="720" y="367" width="160" height="8" fill="#f57c00"/>
+    <text x="800" y="367" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="'Red Hat Text', sans-serif">AMQP Broker</text>
+    <text x="800" y="400" text-anchor="middle" fill="#e65100" font-size="13" font-family="'Red Hat Text', sans-serif">AMQP 1.0 (mTLS)</text>
+    <text x="800" y="425" text-anchor="middle" fill="#ff9800" font-size="12" font-family="'Red Hat Text', sans-serif">External Provider</text>
 
-    <!-- Arrows: Consumer TO External (reversed direction) -->
-    <line x1="215" y1="145" x2="175" y2="135" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
-    <line x1="215" y1="227" x2="175" y2="252" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <!-- ==================== ARROWS ==================== -->
 
-    <!-- Arrows: Internal vertical flow -->
-    <line x1="300" y1="180" x2="300" y2="195" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
-    <line x1="300" y1="260" x2="300" y2="275" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
-    <line x1="300" y1="370" x2="300" y2="385" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <!-- Consumer to Observability (horizontal straight) -->
+    <line x1="300" y1="190" x2="225" y2="190" stroke="#3949ab" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrowhead)"/>
 
-    <!-- Arrow: Event Processor to MongoDB (horizontal) -->
-    <line x1="385" y1="325" x2="405" y2="325" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <!-- Event Processor to MongoDB (horizontal straight) -->
+    <line x1="315" y1="370" x2="225" y2="370" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
 
-    <!-- Arrow: Kafka Producer to Kafka Topics (horizontal) -->
-    <line x1="385" y1="417" x2="615" y2="417" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <!-- Kafka Producer to Kafka Topics (horizontal straight) -->
+    <line x1="315" y1="585" x2="225" y2="585" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Consumer to Subscription API (horizontal straight) -->
+    <line x1="565" y1="245" x2="715" y2="245" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Consumer to AMQP Broker (horizontal straight) -->
+    <line x1="565" y1="395" x2="715" y2="395" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Internal vertical flow with proper spacing -->
+    <line x1="440" y1="285" x2="440" y2="305" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="440" y1="385" x2="440" y2="405" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="440" y1="510" x2="440" y2="530" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="440" y1="600" x2="440" y2="620" stroke="#90a4ae" stroke-width="2" marker-end="url(#arrowhead)"/>
 
 </svg>
