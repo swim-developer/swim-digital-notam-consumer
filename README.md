@@ -184,7 +184,7 @@ Events are routed to **6 topics** based on business intent:
 
 **Example Queries:**
 
-# List recent events
+### List recent events
 ```yaml
 query {
   dnotamEvents(limit: 100) {
@@ -196,7 +196,7 @@ query {
 }
 ```
 
-# Filter by airport and scenario
+### Filter by airport and scenario
 ```yaml
 query {
   dnotamEvents(scenario: "RWY.CLS", airport: "LPPT", limit: 50) {
@@ -208,7 +208,7 @@ query {
 }
 ```
 
-# Event distribution by scenario
+### Event distribution by scenario
 ```yaml
 query {
   scenarioDistribution {
@@ -218,7 +218,7 @@ query {
 }
 ```
 
-# Top airports by activity
+### Top airports by activity
 ```yaml
 query {
   topAirports(limit: 10) {
