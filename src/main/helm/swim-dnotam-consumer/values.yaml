@@ -1,0 +1,73 @@
+namespace: swim-demo
+
+appName: swim-dnotam-consumer
+
+labels:
+  app: swim-dnotam-consumer
+  app.kubernetes.io/part-of: swim-dnotam
+
+image:
+  repository: quay.io/masales/swim-dnotam-consumer
+  tag: latest
+  pullPolicy: Always
+
+replicas: 1
+
+resources:
+  requests:
+    memory: 64Mi
+    cpu: 100m
+  limits:
+    memory: 1Gi
+    cpu: "1"
+
+service:
+  port: 8080
+
+hpa:
+  enabled: false
+
+config:
+  swimServiceBaseUrl: "https://dnotam-consumer-validator.swim-demo.svc.cluster.local:8443"
+  mongodbHost: "dnotam-consumer-mongodb.swim-demo.svc.cluster.local"
+  mongodbPort: "27017"
+  mongodbDatabase: "swim-dnotam"
+  dnotamSubscriptions: '[{"topic":"DNOTAM/v1","provider":"default","eventScenario":["RWY.CLS"],"airportHeliport":["LPPT"],"description":"Runway closures at Lisbon"},{"topic":"DNOTAM/v1","provider":"default","eventScenario":["OBS.NEW"],"airportHeliport":["EHAM"],"description":"Obstacles at Amsterdam"}]'
+  amqpBrokerHost: "validator-artemis-amqps-0-svc.swim-demo.svc.cluster.local"
+  amqpBrokerPort: "5671"
+  amqpMaxConcurrent: "50"
+  amqpBackpressureThreshold: "40"
+  swimValidationEnabled: "true"
+  swimValidationFailOnNullbody: "false"
+  swimXsdPath: "/opt/schemas/aixm-wrapper.xsd"
+  dnotamDeleteAndRecreate: "true"
+  kafkaBootstrapServers: "kafka-kafka-bootstrap.swim-demo.svc.cluster.local:9092"
+  swimTlsReloadPeriod: "off"
+  otelEnabled: "false"
+  otelSdkDisabled: "true"
+  otelEndpoint: ""
+  otelHeaders: ""
+  prometheusEnabled: "true"
+  swimProviders: '[{"providerId":"default","subscriptionManager":{"url":"https://dnotam-consumer-validator.swim-demo.svc.cluster.local:8443","tls":{"trustStorePath":"/secrets/truststore.p12","trustStorePassword":"changeit","keyStorePath":"/secrets/keystore.p12","keyStorePassword":"changeit"},"resilience":{"connectTimeoutMs":30000,"readTimeoutMs":30000,"retryMaxAttempts":3,"retryDelayMs":1000}},"amqpBroker":{"host":"validator-artemis-amqps-0-svc.swim-demo.svc.cluster.local","port":5671,"sslEnabled":true,"username":"admin","password":"admin","tls":{"trustStorePath":"/secrets/truststore.p12","trustStorePassword":"changeit","keyStorePath":"/secrets/keystore.p12","keyStorePassword":"changeit"}}}]'
+
+mongodb:
+  secretName: dnotam-consumer-mongodb-credentials
+  userKey: database-user
+  passwordKey: database-password
+
+mtls:
+  keystorePassword: changeit
+  truststorePassword: changeit
+  amqpUsername: admin
+  amqpPassword: admin
+  clientKeystoreP12: ""
+  truststoreP12: ""
+
+certManager:
+  enabled: true
+  issuerName: swim-ca-issuer
+  issuerKind: ClusterIssuer
+  keystorePassword: changeit
+
+serviceMonitor:
+  enabled: false

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swim-dnotam-consumer-config
+  labels:
+    app: swim-dnotam-consumer
+    component: configuration
+    app.kubernetes.io/part-of: swim-dnotam
+data:
+  SWIM_SERVICE_BASE_URL: "https://mockserver.swim-demo.svc.cluster.local:8443"
+  MONGODB_HOST: "mongodb.swim-demo.svc.cluster.local"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "swim-dnotam"
+  DNOTAM_SUBSCRIPTIONS: '[{"topic":"DNOTAM/v1","airportHeliport":"LPPT","eventScenario":"RUNWAY_CLOSURE","description":"Runway closures at Lisbon"},{"topic":"DNOTAM/v1","airportHeliport":"EHAM","eventScenario":"OBSTACLE_NEW","description":"Obstacles at Amsterdam"}]'
+  AMQP_BROKER_HOST: "mockserver-artemis-hdls-svc.swim-demo.svc.cluster.local"
+  AMQP_BROKER_PORT: "5671"
+  AMQP_MAX_CONCURRENT: "50"
+  AMQP_BACKPRESSURE_THRESHOLD: "40"
+  SWIM_VALIDATION_ENABLED: "true"
+  SWIM_VALIDATION_FAIL_ON_NULLBODY: "false"
+  SWIM_XSD_PATH: "/opt/schemas/aixm-wrapper.xsd"
+  DNOTAM_DELETE_AND_RECREATE: "true"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-kafka-bootstrap.swim-demo.svc.cluster.local:9092"
+  OTEL_ENABLED: "true"
+  OTEL_ENDPOINT: "http://tempo-tempo-distributor.central-observability.svc.cluster.local:4318/v1/traces"
+  OTEL_HEADERS: ""
+  PROMETHEUS_ENABLED: "true"
+  SWIM_PROVIDERS: '[{"providerId":"default","subscriptionManager":{"url":"https://swim-dnotam-provider.swim-demo.svc.cluster.local:8443","tls":{"trustStorePath":"/secrets/truststore.p12","trustStorePassword":"changeme","keyStorePath":"/secrets/client-keystore.p12","keyStorePassword":"changeme"},"resilience":{"connectTimeoutMs":30000,"readTimeoutMs":30000,"retryMaxAttempts":3,"retryDelayMs":1000}},"amqpBroker":{"host":"mockserver-artemis-hdls-svc.swim-demo.svc.cluster.local","port":5671,"sslEnabled":true,"username":"admin","password":"admin","tls":{"trustStorePath":"/secrets/truststore.p12","trustStorePassword":"changeme","keyStorePath":"/secrets/client-keystore.p12","keyStorePassword":"changeme"}}}]'
+

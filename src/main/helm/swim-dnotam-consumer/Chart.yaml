@@ -1,0 +1,6 @@
+apiVersion: v2
+name: swim-dnotam-consumer
+description: SWIM DNOTAM Consumer — Helm chart for OpenShift deployment
+version: 1.0.0
+appVersion: "1.0.0"
+type: application

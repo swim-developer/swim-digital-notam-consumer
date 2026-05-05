@@ -1,0 +1,489 @@
+{
+  "info": {
+    "name": "SWIM DNOTAM Consumer",
+    "description": "Complete test collection for the SWIM DNOTAM Consumer REST API.\n\n## Setup\n1. Import this file into Postman.\n2. Import `SWIM-Local.postman_environment.json` and select it as the active environment.\n3. Start the consumer with `./mvnw quarkus:dev` and the compose stack with `podman compose up -d`.\n\n## Demo flow\n1. **Subscriptions / Create** — creates a new subscription and saves the `sub_id` automatically.\n2. **Subscriptions / List all** — confirms the subscription exists.\n3. **Subscriptions / Pause** — pauses the subscription; verify with List active (should be empty).\n4. **Subscriptions / Resume** — resumes the subscription; verify with List active (should appear again).\n5. **Events / List by subscription** — once the consumer receives DNOTAM events, browse them here.\n6. **Subscriptions / Delete** — clean up at the end.\n\n## curl equivalent\nAll requests can also be executed with curl — see the README for examples.\n\nRequires **SWIM Local** environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Subscriptions",
+      "description": "Subscription lifecycle: create, list, pause, resume, delete.",
+      "item": [
+        {
+          "name": "Create subscription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"DNOTAM/v1\",\n  \"eventScenario\": [\"RWY.CLS\"],\n  \"airportHeliport\": [\"EADD\"],\n  \"description\": \"Runway closure events at Donlon airport\"\n}"
+            },
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions"]
+            },
+            "description": "Creates a new manual subscription and registers an AMQP consumer. Saves the returned `subscriptionId` in the `sub_id` environment variable for use in subsequent requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Subscription created (201)', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('subscriptionId');",
+                  "    pm.environment.set('sub_id', body.subscriptionId);",
+                  "    console.log('Saved sub_id:', body.subscriptionId);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions"]
+            },
+            "description": "Lists all subscriptions regardless of status (ACTIVE, PAUSED)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns subscription list (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List active subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/active",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "active"]
+            },
+            "description": "Lists only subscriptions with status ACTIVE. After pausing a subscription it should disappear from this list."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns active subscriptions (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    body.forEach(function(s) {",
+                  "        pm.expect(s.status).to.eql('ACTIVE');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pause subscription",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscriptionStatus\": \"PAUSED\"\n}"
+            },
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}"]
+            },
+            "description": "Pauses the subscription. While paused the AMQP consumer stops reading from the queue. Run 'List active subscriptions' after this — the subscription should not appear."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Subscription paused (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.status).to.eql('PAUSED');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resume subscription",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscriptionStatus\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}"]
+            },
+            "description": "Resumes a paused subscription and re-registers the AMQP consumer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Subscription resumed (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.status).to.eql('ACTIVE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List subscriptions — Validator Subscription Manager",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{validator_url}}/swim/v1/subscriptions",
+              "host": ["{{validator_url}}"],
+              "path": ["swim", "v1", "subscriptions"]
+            },
+            "description": "Lists subscriptions from the consumer-validator's Subscription Manager (port 8084). Useful to verify that the consumer registered its subscription correctly on the provider side."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns SM subscription list (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete subscription",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}"]
+            },
+            "description": "Deletes the subscription and unregisters the AMQP consumer. Uses `sub_id` saved by 'Create subscription'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Subscription deleted (204)', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "    pm.environment.unset('sub_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Topics",
+      "description": "Topics configured in the consumer via ConfigMap.",
+      "item": [
+        {
+          "name": "List configured topics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/topics",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "topics"]
+            },
+            "description": "Returns the topics pre-configured via the `dnotam.subscriptions` ConfigMap property. These are the subscriptions the consumer creates automatically at startup."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns configured topics (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Events",
+      "description": "Query received DNOTAM events persisted in MongoDB.",
+      "item": [
+        {
+          "name": "List events by subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}/events?page=0&size=20",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}", "events"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            },
+            "description": "Paginated list of DNOTAM events received for the subscription identified by `sub_id`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns event page (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body).to.have.property('totalElements');",
+                  "    if (body.content.length > 0) {",
+                  "        pm.environment.set('message_id', body.content[0].messageId);",
+                  "        console.log('Saved message_id:', body.content[0].messageId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Count events by subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}/events/count",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}", "events", "count"]
+            },
+            "description": "Returns the total number of events received for the subscription."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns event count (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('count');",
+                  "    console.log('Event count:', body.count);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get event by message ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/events/{{message_id}}",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "events", "{{message_id}}"]
+            },
+            "description": "Retrieves a specific event by its AMQP message ID. `message_id` is populated automatically by 'List events by subscription' when events exist."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Event found (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('messageId');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List events by date range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/subscriptions/{{sub_id}}/events/range?startDate=2025-01-01T00:00:00Z&endDate=2030-12-31T23:59:59Z&page=0&size=20",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "subscriptions", "{{sub_id}}", "events", "range"],
+              "query": [
+                { "key": "startDate", "value": "2025-01-01T00:00:00Z" },
+                { "key": "endDate", "value": "2030-12-31T23:59:59Z" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            },
+            "description": "Retrieves events received within a date range (ISO-8601 format, based on `receivedAt`). Adjust `startDate` and `endDate` to match the actual test window."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns events in date range (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Operational",
+      "description": "Dead Letter Queue and consumer statistics.",
+      "item": [
+        {
+          "name": "Consumer statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/stats",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "stats"]
+            },
+            "description": "Returns aggregate statistics: active subscriptions, events received, events processed, DLQ count."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns stats (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List DLQ messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/dlq?page=0&size=20",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "dlq"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            },
+            "description": "Paginated list of messages that failed processing and landed in the Dead Letter Queue. An empty list means no processing failures."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns DLQ list (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.test('DLQ is empty (healthy consumer)', function() {",
+                  "        pm.expect(body.totalElements).to.eql(0);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Count DLQ messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{consumer_url}}/api/v1/dlq/count",
+              "host": ["{{consumer_url}}"],
+              "path": ["api", "v1", "dlq", "count"]
+            },
+            "description": "Quick check: returns the total number of messages in the Dead Letter Queue. Should be 0 on a healthy consumer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('DLQ count returned (200)', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('count');",
+                  "    console.log('DLQ count:', body.count);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

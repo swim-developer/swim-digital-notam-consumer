@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "swim-dnotam-consumer.labels" . | nindent 4 }}
+    component: configuration
+data:
+  SWIM_SERVICE_BASE_URL: {{ .Values.config.swimServiceBaseUrl | quote }}
+  MONGODB_HOST: {{ .Values.config.mongodbHost | quote }}
+  MONGODB_PORT: {{ .Values.config.mongodbPort | quote }}
+  MONGODB_DATABASE: {{ .Values.config.mongodbDatabase | quote }}
+  DNOTAM_SUBSCRIPTIONS: {{ .Values.config.dnotamSubscriptions | quote }}
+  AMQP_BROKER_HOST: {{ .Values.config.amqpBrokerHost | quote }}
+  AMQP_BROKER_PORT: {{ .Values.config.amqpBrokerPort | quote }}
+  AMQP_MAX_CONCURRENT: {{ .Values.config.amqpMaxConcurrent | quote }}
+  AMQP_BACKPRESSURE_THRESHOLD: {{ .Values.config.amqpBackpressureThreshold | quote }}
+  SWIM_VALIDATION_ENABLED: {{ .Values.config.swimValidationEnabled | quote }}
+  SWIM_VALIDATION_FAIL_ON_NULLBODY: {{ .Values.config.swimValidationFailOnNullbody | quote }}
+  SWIM_XSD_PATH: {{ .Values.config.swimXsdPath | quote }}
+  DNOTAM_DELETE_AND_RECREATE: {{ .Values.config.dnotamDeleteAndRecreate | quote }}
+  KAFKA_BOOTSTRAP_SERVERS: {{ .Values.config.kafkaBootstrapServers | quote }}
+  SWIM_TLS_RELOAD_PERIOD: {{ .Values.config.swimTlsReloadPeriod | quote }}
+  OTEL_ENABLED: {{ .Values.config.otelEnabled | quote }}
+  OTEL_SDK_DISABLED: {{ .Values.config.otelSdkDisabled | quote }}
+  OTEL_ENDPOINT: {{ .Values.config.otelEndpoint | quote }}
+  OTEL_HEADERS: {{ .Values.config.otelHeaders | quote }}
+  PROMETHEUS_ENABLED: {{ .Values.config.prometheusEnabled | quote }}
+  SWIM_PROVIDERS: {{ .Values.config.swimProviders | quote }}

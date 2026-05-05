@@ -1,0 +1,206 @@
+# Local development infrastructure for swim-digital-notam-consumer.
+#
+# Starts:
+#   - dnotam-consumer-validator  : mock Subscription Manager API + AIXM event generator
+#   - validator-artemis           : AMQP broker used by the validator to deliver events
+#   - validator-mariadb           : validator persistence
+#   - mongodb                     : consumer event store
+#   - mongo-express               : MongoDB web UI (http://localhost:9081)
+#   - kafka + kafka-init          : Kafka broker with DNOTAM topics pre-created
+#
+# Usage:
+#   podman compose up -d
+#   ./mvnw quarkus:dev
+
+services:
+
+  dnotam-consumer-validator:
+    image: quay.io/masales/swim-dnotam-consumer-validator:latest
+    pull_policy: always
+    container_name: dnotam-consumer-validator
+    ports:
+      - "8084:8080"   # HTTP  (used by consumer dev profile)
+      - "8444:8443"   # HTTPS (available for direct mTLS testing)
+    environment:
+      AMQP_BROKER_HOST: dnotam-consumer-validator-artemis
+      AMQP_BROKER_PORT: 5672
+      AMQP_BROKER_USERNAME: admin
+      AMQP_BROKER_PASSWORD: admin
+      MARIADB_HOST: dnotam-consumer-validator-mariadb
+      MARIADB_PORT: 3306
+      MARIADB_DATABASE: swim_consumer_validator
+      MARIADB_USERNAME: swim
+      MARIADB_PASSWORD: swim
+      EVENT_GENERATOR_ENABLED: "true"
+      EVENT_GENERATOR_SCHEDULE: "0 */1 * * * ?"
+      HEARTBEAT_PUBLISHER_ENABLED: "true"
+      HEARTBEAT_PUBLISHER_INTERVAL: 15s
+      QUARKUS_HTTP_INSECURE_REQUESTS: enabled
+    volumes:
+      - ./certs/validator.crt:/certs/server/tls.crt:ro,Z
+      - ./certs/validator.key:/certs/server/tls.key:ro,Z
+      - ./certs/ca.crt:/certs/ca/ca.crt:ro,Z
+    networks:
+      - swim-network
+    depends_on:
+      dnotam-consumer-validator-artemis:
+        condition: service_healthy
+      dnotam-consumer-validator-mariadb:
+        condition: service_healthy
+
+  dnotam-consumer-validator-artemis:
+    # Custom image: same pattern as ArtemisTlsContainer.java (integration tests).
+    # Entrypoint: artemis create --http-host 0.0.0.0 + cp broker.xml + artemis run.
+    # certs/ must be generated first: ./certs/generate.sh
+    build:
+      context: ./src/local-dev/artemis
+      dockerfile: Containerfile
+    container_name: dnotam-consumer-validator-artemis
+    ports:
+      - "5671:5671"   # AMQPS / mTLS  (default for consumer dev profile)
+      - "5672:5672"   # AMQP plain     (opt-in, no certs required)
+      - "8161:8161"   # Artemis web console
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+    volumes:
+      - ./certs/broker.p12:/certs/broker.p12:ro,Z
+      - ./certs/ca-truststore.p12:/certs/ca-truststore.p12:ro,Z
+    networks:
+      - swim-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8161/console/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  dnotam-consumer-validator-mariadb:
+    image: docker.io/library/mariadb:12-ubi
+    container_name: dnotam-consumer-validator-mariadb
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_DATABASE: swim_consumer_validator
+      MARIADB_USER: swim
+      MARIADB_PASSWORD: swim
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - dnotam-consumer-validator-mariadb-data:/var/lib/mysql
+    networks:
+      - swim-network
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongodb:
+    image: quay.io/mongodb/mongodb-community-server:8.2-ubi9-slim
+    container_name: dnotam-consumer-mongodb
+    command: ["mongod", "--quiet", "--logpath", "/dev/null"]
+    environment:
+      MONGO_INITDB_DATABASE: swim-dnotam
+      GLIBC_TUNABLES: glibc.cpu.hwcaps=-SHSTK
+    ports:
+      - "27017:27017"
+    volumes:
+      - dnotam-consumer-mongodb-data:/data/db
+    networks:
+      - swim-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mongo-express:
+    image: docker.io/library/mongo-express:1.0
+    container_name: dnotam-consumer-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "9081:8081"
+    networks:
+      - swim-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  kafka:
+    image: docker.io/apache/kafka:4.1.2
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    networks:
+      - swim-network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: DNOTAM_CONSUMER_LOCAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+
+  akhq:
+    image: docker.io/tchiotludo/akhq:latest
+    container_name: dnotam-consumer-akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            local:
+              properties:
+                bootstrap.servers: "kafka:29092"
+    ports:
+      - "9080:8080"
+    networks:
+      - swim-network
+    depends_on:
+      - kafka
+
+  kafka-init:
+    image: docker.io/apache/kafka:4.1.2
+    container_name: kafka-init
+    depends_on:
+      - kafka
+    networks:
+      - swim-network
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo 'Waiting for Kafka...'
+        until /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list > /dev/null 2>&1; do sleep 2; done
+        echo 'Creating DNOTAM topics...'
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-inbox-topic                    --partitions 10 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-closure-topic            --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-restriction-topic        --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-surface-condition-topic  --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-airspace-topic           --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-hazards-navaids-topic    --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-others-topic             --partitions 3  --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic dnotam-events-dlq-topic               --partitions 1  --replication-factor 1
+        echo 'Done.'
+
+volumes:
+  dnotam-consumer-mongodb-data:
+  dnotam-consumer-validator-mariadb-data:
+
+networks:
+  swim-network:
+    name: swim-dnotam-consumer-network
+    driver: bridge

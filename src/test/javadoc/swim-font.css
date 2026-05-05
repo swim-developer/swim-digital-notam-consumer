@@ -1,0 +1,12 @@
+@font-face {
+    font-family: RedHatText;
+    font-style: normal;
+    font-weight: 400;
+    src: url('./RedHatText-Regular-BDARZx4I.woff2') format('woff2');
+    font-display: fallback;
+}
+
+:root {
+    --body-font-family: 'RedHatText', Arial, Helvetica, sans-serif;
+    --block-font-family: 'RedHatText', Georgia, "Times New Roman", Times, serif;
+}

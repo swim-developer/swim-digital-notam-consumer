@@ -1,0 +1,194 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "swim-dnotam-consumer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "swim-dnotam-consumer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "swim-dnotam-consumer.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.appName }}
+      containers:
+      - name: {{ .Values.appName }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+          protocol: TCP
+          name: http
+        env:
+        - name: MONGODB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mongodb.secretName }}
+              key: {{ .Values.mongodb.userKey }}
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.mongodb.secretName }}
+              key: {{ .Values.mongodb.passwordKey }}
+        - name: MONGODB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: MONGODB_HOST
+        - name: MONGODB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: MONGODB_PORT
+        - name: MONGODB_URI
+          value: "mongodb://$(MONGODB_USERNAME):$(MONGODB_PASSWORD)@$(MONGODB_HOST):$(MONGODB_PORT)"
+        - name: MONGODB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: MONGODB_DATABASE
+        - name: SWIM_SERVICE_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_SERVICE_BASE_URL
+        - name: AMQP_BROKER_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: AMQP_BROKER_HOST
+        - name: AMQP_BROKER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: AMQP_BROKER_PORT
+        - name: AMQP_BROKER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.certManager.enabled }}{{ .Values.appName }}-amqp-credentials{{ else }}{{ .Values.appName }}-mtls{{ end }}
+              key: amqp-username
+        - name: AMQP_BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.certManager.enabled }}{{ .Values.appName }}-amqp-credentials{{ else }}{{ .Values.appName }}-mtls{{ end }}
+              key: amqp-password
+        - name: AMQP_MAX_CONCURRENT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: AMQP_MAX_CONCURRENT
+        - name: AMQP_BACKPRESSURE_THRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: AMQP_BACKPRESSURE_THRESHOLD
+        - name: SWIM_TRUSTSTORE_PATH
+          value: /secrets/truststore.p12
+        - name: SWIM_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.certManager.enabled }}{{ .Values.appName }}-keystore-password{{ else }}{{ .Values.appName }}-mtls{{ end }}
+              key: {{ if .Values.certManager.enabled }}password{{ else }}truststore-password{{ end }}
+        - name: SWIM_CLIENT_KEYSTORE_PATH
+          value: /secrets/keystore.p12
+        - name: SWIM_CLIENT_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.certManager.enabled }}{{ .Values.appName }}-keystore-password{{ else }}{{ .Values.appName }}-mtls{{ end }}
+              key: {{ if .Values.certManager.enabled }}password{{ else }}keystore-password{{ end }}
+        - name: SWIM_TLS_RELOAD_PERIOD
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_TLS_RELOAD_PERIOD
+        - name: SWIM_VALIDATION_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_VALIDATION_ENABLED
+        - name: SWIM_VALIDATION_FAIL_ON_NULLBODY
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_VALIDATION_FAIL_ON_NULLBODY
+        - name: SWIM_XSD_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_XSD_PATH
+        - name: DNOTAM_DELETE_AND_RECREATE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: DNOTAM_DELETE_AND_RECREATE
+        - name: DNOTAM_SUBSCRIPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: DNOTAM_SUBSCRIPTIONS
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: OTEL_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: OTEL_ENABLED
+        - name: OTEL_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: OTEL_ENDPOINT
+        - name: OTEL_HEADERS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: OTEL_HEADERS
+        - name: PROMETHEUS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: PROMETHEUS_ENABLED
+        - name: SWIM_PROVIDERS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.appName }}-config
+              key: SWIM_PROVIDERS
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: mtls-certs
+          mountPath: /secrets
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 9000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 9000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+      volumes:
+      - name: mtls-certs
+        secret:
+          secretName: {{ .Values.appName }}-mtls
+          items:
+          - key: keystore.p12
+            path: keystore.p12
+          - key: truststore.p12
+            path: truststore.p12

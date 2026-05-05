@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 295" font-family="Arial, sans-serif">
+
+  <text x="440" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#212121">swim-digital-notam-consumer - Data Flow</text>
+
+  <!-- ===== ROW 1: INGESTION ===== -->
+
+  <!-- SWIM Provider -->
+  <rect x="20" y="42" width="120" height="55" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="80" y="64" text-anchor="middle" font-size="11" font-weight="bold" fill="#bf360c">SWIM Provider</text>
+  <text x="80" y="79" text-anchor="middle" font-size="10" fill="#546e7a">AMQP 1.0</text>
+  <text x="80" y="92" text-anchor="middle" font-size="10" fill="#546e7a">mTLS</text>
+
+  <line x1="140" y1="69" x2="168" y2="69" stroke="#757575" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- AMQP Consumer Manager -->
+  <rect x="168" y="42" width="170" height="55" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="253" y="64" text-anchor="middle" font-size="11" font-weight="bold" fill="#1b5e20">AMQP Consumer</text>
+  <text x="253" y="79" text-anchor="middle" font-size="10" fill="#546e7a">AbstractAmqpConsumer</text>
+  <text x="253" y="92" text-anchor="middle" font-size="10" fill="#546e7a">Manager (framework)</text>
+
+  <!-- EP1 label + arrow -->
+  <line x1="338" y1="69" x2="372" y2="69" stroke="#e65100" stroke-width="1.5" marker-end="url(#arr-ep)"/>
+  <text x="355" y="63" text-anchor="middle" font-size="9" font-weight="bold" fill="#e65100">EP1</text>
+
+  <!-- Kafka Inbox -->
+  <rect x="372" y="42" width="140" height="55" rx="6" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+  <text x="442" y="64" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Kafka Inbox</text>
+  <text x="442" y="79" text-anchor="middle" font-size="10" fill="#546e7a">InboxEnvelope</text>
+  <text x="442" y="92" text-anchor="middle" font-size="10" fill="#546e7a">(metadata + XML)</text>
+
+  <!-- EP2 arrow down from Kafka Inbox -->
+  <line x1="442" y1="97" x2="442" y2="143" stroke="#e65100" stroke-width="1.5" marker-end="url(#arr-ep)"/>
+  <text x="452" y="125" text-anchor="start" font-size="9" font-weight="bold" fill="#e65100">EP2</text>
+
+  <!-- ===== ROW 2: PROCESSING ===== -->
+
+  <!-- JAXB Processing -->
+  <rect x="312" y="143" width="260" height="60" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="442" y="165" text-anchor="middle" font-size="11" font-weight="bold" fill="#1b5e20">JAXB Processing</text>
+  <text x="442" y="180" text-anchor="middle" font-size="10" fill="#546e7a">DnotamInboxMessageHandler</text>
+  <text x="442" y="194" text-anchor="middle" font-size="10" fill="#546e7a">AIXM 5.1.1 unmarshalling + validation</text>
+
+  <!-- Arrow from JAXB to MongoDB -->
+  <line x1="572" y1="158" x2="604" y2="143" stroke="#757575" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Arrow from JAXB to Kafka Topics (EP3) -->
+  <line x1="572" y1="183" x2="604" y2="197" stroke="#e65100" stroke-width="1.5" marker-end="url(#arr-ep)"/>
+  <text x="585" y="195" text-anchor="middle" font-size="9" font-weight="bold" fill="#e65100">EP3</text>
+
+  <!-- MongoDB -->
+  <rect x="604" y="118" width="140" height="50" rx="6" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1.5"/>
+  <text x="674" y="139" text-anchor="middle" font-size="11" font-weight="bold" fill="#4a148c">MongoDB</text>
+  <text x="674" y="154" text-anchor="middle" font-size="10" fill="#546e7a">CP1 audit store</text>
+
+  <!-- Kafka Domain Topics -->
+  <rect x="604" y="178" width="140" height="50" rx="6" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+  <text x="674" y="199" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Kafka Topics</text>
+  <text x="674" y="214" text-anchor="middle" font-size="10" fill="#546e7a">domain events (6 topics)</text>
+
+  <!-- Arrow from Kafka Topics to ATM Systems -->
+  <line x1="744" y1="203" x2="762" y2="203" stroke="#757575" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ATM Systems -->
+  <rect x="762" y="178" width="100" height="50" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="812" y="200" text-anchor="middle" font-size="11" font-weight="bold" fill="#0d47a1">ATM</text>
+  <text x="812" y="214" text-anchor="middle" font-size="11" font-weight="bold" fill="#0d47a1">Systems</text>
+
+  <!-- Footer -->
+  <text x="440" y="254" text-anchor="middle" font-size="10" fill="#78909c">EP1: SwimInboxStore (pluggable, default: swim-inbox-store-kafka)</text>
+  <text x="440" y="268" text-anchor="middle" font-size="10" fill="#78909c">EP2: AbstractKafkaInboxReader -- EP3: SwimOutboxRouter (pluggable, default: swim-outbox-kafka-dnotam)</text>
+  <text x="440" y="282" text-anchor="middle" font-size="10" fill="#78909c">ANSP role -- multi-provider AMQP -- MongoDB for CP1 audit -- Kafka domain topics for ATM integration</text>
+
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#757575"/>
+    </marker>
+    <marker id="arr-ep" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#e65100"/>
+    </marker>
+  </defs>
+
+</svg>

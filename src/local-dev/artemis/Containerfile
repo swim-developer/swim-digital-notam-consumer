@@ -1,0 +1,15 @@
+FROM docker.io/apache/activemq-artemis:2.44.0
+
+USER root
+
+RUN mkdir -p /var/lib/artemis-instance /certs /opt/broker-override && \
+    chown -R 1000:0 /var/lib/artemis-instance /certs /opt/broker-override
+
+COPY --chown=1000:0 tls-entrypoint.sh /opt/tls-entrypoint.sh
+RUN chmod +x /opt/tls-entrypoint.sh
+
+COPY --chown=1000:0 broker.xml /opt/broker-override/broker.xml
+
+USER 1000
+
+ENTRYPOINT ["/opt/tls-entrypoint.sh"]

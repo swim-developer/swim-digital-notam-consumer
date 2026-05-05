@@ -1,0 +1,194 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swim-dnotam-consumer
+  namespace: swim-demo
+  labels:
+    app: swim-dnotam-consumer
+    app.kubernetes.io/part-of: swim-dnotam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swim-dnotam-consumer
+  template:
+    metadata:
+      labels:
+        app: swim-dnotam-consumer
+    spec:
+      containers:
+      - name: swim-dnotam-consumer
+        image: quay.io/masales/swim-dnotam-consumer:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+        env:
+        - name: MONGODB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: database-user
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: database-password
+        - name: MONGODB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: MONGODB_HOST
+        - name: MONGODB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: MONGODB_PORT
+        - name: MONGODB_URI
+          value: mongodb://$(MONGODB_USERNAME):$(MONGODB_PASSWORD)@$(MONGODB_HOST):$(MONGODB_PORT)
+        - name: MONGODB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: MONGODB_DATABASE
+        - name: SWIM_SERVICE_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: SWIM_SERVICE_BASE_URL
+        - name: AMQP_BROKER_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: AMQP_BROKER_HOST
+        - name: AMQP_BROKER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: AMQP_BROKER_PORT
+        - name: AMQP_BROKER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: swim-dnotam-consumer-mtls
+              key: amqp-username
+        - name: AMQP_BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: swim-dnotam-consumer-mtls
+              key: amqp-password
+        - name: AMQP_MAX_CONCURRENT
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: AMQP_MAX_CONCURRENT
+        - name: AMQP_BACKPRESSURE_THRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: AMQP_BACKPRESSURE_THRESHOLD
+        - name: SWIM_TRUSTSTORE_PATH
+          value: /secrets/truststore.p12
+        - name: SWIM_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: swim-dnotam-consumer-mtls
+              key: truststore-password
+        - name: SWIM_CLIENT_KEYSTORE_PATH
+          value: /secrets/client-keystore.p12
+        - name: SWIM_CLIENT_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: swim-dnotam-consumer-mtls
+              key: keystore-password
+        - name: SWIM_VALIDATION_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: SWIM_VALIDATION_ENABLED
+        - name: SWIM_VALIDATION_FAIL_ON_NULLBODY
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: SWIM_VALIDATION_FAIL_ON_NULLBODY
+        - name: SWIM_XSD_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: SWIM_XSD_PATH
+        - name: DNOTAM_DELETE_AND_RECREATE
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: DNOTAM_DELETE_AND_RECREATE
+        - name: DNOTAM_SUBSCRIPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: DNOTAM_SUBSCRIPTIONS
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: OTEL_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: OTEL_ENABLED
+        - name: OTEL_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: OTEL_ENDPOINT
+        - name: OTEL_HEADERS
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: OTEL_HEADERS
+        - name: PROMETHEUS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: PROMETHEUS_ENABLED
+        - name: SWIM_PROVIDERS
+          valueFrom:
+            configMapKeyRef:
+              name: swim-dnotam-consumer-config
+              key: SWIM_PROVIDERS
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        volumeMounts:
+        - name: mtls-certs
+          mountPath: /secrets
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 2
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: mtls-certs
+        secret:
+          secretName: swim-dnotam-consumer-mtls
+          items:
+          - key: client-keystore.p12
+            path: client-keystore.p12
+          - key: truststore.p12
+            path: truststore.p12

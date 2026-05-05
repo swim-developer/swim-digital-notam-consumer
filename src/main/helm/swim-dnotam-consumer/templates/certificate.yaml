@@ -1,0 +1,58 @@
+{{- if .Values.certManager.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.appName }}-keystore-password
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "swim-dnotam-consumer.labels" . | nindent 4 }}
+    component: security
+type: Opaque
+stringData:
+  password: {{ .Values.certManager.keystorePassword | quote }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.appName }}-mtls-cert
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "swim-dnotam-consumer.labels" . | nindent 4 }}
+    component: security
+spec:
+  secretName: {{ .Values.appName }}-mtls
+  issuerRef:
+    name: {{ .Values.certManager.issuerName }}
+    kind: {{ .Values.certManager.issuerKind }}
+  commonName: {{ .Values.appName }}
+  usages:
+    - client auth
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  keystores:
+    pkcs12:
+      create: true
+      passwordSecretRef:
+        name: {{ .Values.appName }}-keystore-password
+        key: password
+    jks:
+      create: true
+      passwordSecretRef:
+        name: {{ .Values.appName }}-keystore-password
+        key: password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.appName }}-amqp-credentials
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "swim-dnotam-consumer.labels" . | nindent 4 }}
+    component: security
+type: Opaque
+stringData:
+  amqp-username: {{ .Values.mtls.amqpUsername | quote }}
+  amqp-password: {{ .Values.mtls.amqpPassword | quote }}
+{{- end }}
