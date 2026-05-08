@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.swim-developer</groupId>
-            <artifactId>aixm-model</artifactId>
+            <artifactId>swim-aixm-model</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

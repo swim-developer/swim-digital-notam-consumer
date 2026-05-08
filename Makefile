@@ -8,7 +8,12 @@ MVN_NATIVE := -Dnative -DskipTests \
 SONAR_URL   ?= http://localhost:9000
 SONAR_TOKEN ?=
 
-.PHONY: help deps build test jvm \
+PARENT_DIR  := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/..)
+GITHUB_SSH  := git@github.com:swim-developer
+
+SYNC_DEPS := swim-developer-root swim-aixm-model swim-developer-framework swim-developer-extensions
+
+.PHONY: help sync pull pull-deps install-deps deps build test jvm \
         native-amd64 native-arm64 manifest push native \
         sonar security-deps security-image
 
@@ -18,6 +23,10 @@ help:
 	@echo "  ─────────────────────────────────────────────────────────"
 	@echo ""
 	@echo "  Local dev:"
+	@echo "    sync               Full setup: pull + pull-deps + install-deps"
+	@echo "    pull               Pull this project from remote"
+	@echo "    pull-deps          Clone missing deps + pull existing ones in $(PARENT_DIR)"
+	@echo "    install-deps       Install all deps into local Maven repository"
 	@echo "    build              Compile + package JAR (skips tests)"
 	@echo "    test               Unit + integration tests (Testcontainers)"
 	@echo "    deps               Show which sibling repos must be installed first"
@@ -40,6 +49,52 @@ help:
 	@echo ""
 	@echo "  Variables: REGISTRY=$(REGISTRY)  TAG=$(TAG)"
 
+sync: pull pull-deps install-deps
+
+pull:
+	@echo ""
+	@echo "  ── Pull this project ────────────────────────────────────────"
+	@git pull --ff-only
+	@echo ""
+
+pull-deps:
+	@echo ""
+	@echo "  ── Ensure sibling dependencies in $(PARENT_DIR) ─────────────"
+	@for repo in $(SYNC_DEPS); do \
+	  dir="$(PARENT_DIR)/$$repo"; \
+	  if [ ! -d "$$dir" ]; then \
+	    echo "  CLONE   $$repo"; \
+	    git clone "$(GITHUB_SSH)/$$repo.git" "$$dir" --quiet; \
+	  else \
+	    printf "  PULL    $$repo ... "; \
+	    git -C "$$dir" pull --ff-only --quiet 2>&1 && echo "ok" || echo "skipped (local changes or detached HEAD)"; \
+	  fi; \
+	done
+	@echo ""
+
+install-deps:
+	@echo ""
+	@echo "  ── Install dependencies into local Maven repository ─────────"
+	@for repo in $(SYNC_DEPS); do \
+	  dir="$(PARENT_DIR)/$$repo"; \
+	  if [ ! -d "$$dir" ]; then \
+	    echo "  SKIP    $$repo (not found — run: make pull-deps)"; \
+	    continue; \
+	  fi; \
+	  mvn_cmd="mvn"; \
+	  [ -f "$$dir/mvnw" ] && mvn_cmd="$$dir/mvnw"; \
+	  if [ "$$repo" = "swim-developer-root" ]; then \
+	    args="install -N -DskipTests -q"; \
+	  else \
+	    args="clean install -DskipTests -q"; \
+	  fi; \
+	  printf "  INSTALL $$repo ... "; \
+	  "$$mvn_cmd" -f "$$dir/pom.xml" $$args && echo "ok" || { echo "FAIL"; exit 1; }; \
+	done
+	@echo ""
+	@echo "  Done. Run: make build"
+	@echo ""
+
 deps:
 	@echo ""
 	@echo "  Required sibling repos — install each to local Maven repo before building:"
@@ -47,8 +102,8 @@ deps:
 	@echo "    git clone https://github.com/swim-developer/swim-developer-root"
 	@echo "    cd swim-developer-root && ./mvnw install -N -DskipTests"
 	@echo ""
-	@echo "    git clone https://github.com/swim-developer/aixm-model"
-	@echo "    cd aixm-model && ./mvnw clean install -DskipTests"
+	@echo "    git clone https://github.com/swim-developer/swim-aixm-model"
+	@echo "    cd swim-aixm-model && ./mvnw clean install -DskipTests"
 	@echo ""
 	@echo "    git clone https://github.com/swim-developer/swim-developer-framework"
 	@echo "    cd swim-developer-framework && ./mvnw clean install -DskipTests"
