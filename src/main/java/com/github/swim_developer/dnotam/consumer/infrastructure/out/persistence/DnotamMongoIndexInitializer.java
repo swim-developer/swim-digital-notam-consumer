@@ -36,9 +36,8 @@ public class DnotamMongoIndexInitializer extends AbstractMongoIndexInitializer {
         this.dnotamEventTtlDays = dnotamEventTtlDays;
     }
 
-    @Override
     public void onStart(@Observes StartupEvent event) {
-        super.onStart(event);
+        super.onStart();
     }
 
     @Override
