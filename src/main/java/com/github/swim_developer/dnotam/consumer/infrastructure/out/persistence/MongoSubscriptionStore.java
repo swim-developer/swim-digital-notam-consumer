@@ -8,7 +8,6 @@ import com.github.swim_developer.framework.application.port.out.SwimConsumerSubs
 import com.github.swim_developer.framework.consumer.application.port.out.SwimPersistenceHealthPort;
 import com.github.swim_developer.framework.consumer.application.port.out.SwimSubscriptionCountPort;
 import com.github.swim_developer.framework.consumer.application.port.out.SwimSubscriptionListPort;
-import com.github.swim_developer.framework.domain.model.SwimConsumerSubscription;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

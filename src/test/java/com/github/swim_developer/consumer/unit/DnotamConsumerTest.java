@@ -9,7 +9,6 @@ import com.github.swim_developer.framework.application.port.in.SwimMessageInterc
 import com.github.swim_developer.framework.consumer.application.messaging.outbox.OutboxRouterFanOut;
 import jakarta.enterprise.inject.Instance;
 import com.github.swim_developer.framework.consumer.infrastructure.out.filter.SubscriptionFilterCache;
-import com.github.swim_developer.framework.domain.exception.XmlValidationException;
 import com.github.swim_developer.framework.infrastructure.util.HashUtil;
 import com.github.swim_developer.dnotam.consumer.domain.model.Event;
 import com.github.swim_developer.dnotam.consumer.infrastructure.out.persistence.MongoEventStore;
@@ -281,7 +280,7 @@ class DnotamConsumerTest {
     private SubscriptionFilterCache filterCache;
 
     @BeforeEach
-    void setup(TestInfo testInfo) throws Exception {
+    void setup(TestInfo testInfo) {
         System.out.printf("%n══ ▶ %s.%s%n", getClass().getSimpleName(), testInfo.getDisplayName());
         meterRegistry = new SimpleMeterRegistry();
         eventExtractor = new DnotamEventExtractor();
