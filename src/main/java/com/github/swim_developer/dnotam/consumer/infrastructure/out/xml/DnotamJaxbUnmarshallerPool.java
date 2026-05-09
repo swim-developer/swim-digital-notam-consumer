@@ -4,7 +4,6 @@ import aero.aixm.message.AIXMBasicMessageType;
 import com.github.swim_developer.framework.application.port.out.SwimXmlUnmarshallerPort;
 import com.github.swim_developer.framework.domain.exception.XmlValidationException;
 import com.github.swim_developer.validation.AixmUnmarshallerPool;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +17,6 @@ public class DnotamJaxbUnmarshallerPool implements SwimXmlUnmarshallerPort<AIXMB
     @Inject
     public DnotamJaxbUnmarshallerPool() {
         this.pool = new AixmUnmarshallerPool();
-    }
-
-    @PostConstruct
-    void logInitialization() {
         log.info("AIXM JAXB unmarshaller pool initialized from aixm-model");
     }
 

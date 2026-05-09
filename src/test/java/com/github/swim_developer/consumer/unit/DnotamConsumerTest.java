@@ -27,15 +27,11 @@ import com.github.swim_developer.framework.consumer.application.messaging.proces
 import com.github.swim_developer.dnotam.consumer.application.usecase.DnotamEventProcessingUseCase;
 import com.github.swim_developer.framework.consumer.infrastructure.out.idempotency.AbstractIdempotencyCache;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBIntrospector;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.ArgumentCaptor;
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,27 +86,43 @@ class DnotamConsumerTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1.1/message"
                 xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:aixm="http://www.aixm.aero/schema/5.1.1"
-                xmlns:event="http://www.aixm.aero/schema/5.1.1/event">
+                xmlns:event="http://www.aixm.aero/schema/5.1.1/event" xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.aixm.aero/schema/5.1.1/message http://www.aixm.aero/schema/5.1.1/message/AIXM_BasicMessage.xsd
+                http://www.aixm.aero/schema/5.1.1/event http://www.aixm.aero/schema/5.1.1/event/version_5.1.1-j/Event_Features.xsd"
+                gml:id="M00001">
                 <message:hasMember>
-                    <event:Event gml:id="uuid.53432671-c3f4-4b5d-b72a-85722755b4d6">
+                    <event:Event gml:id="uuid.a0805c34-5a0d-4d00-b689-89a56e25d4ec">
+                        <gml:identifier codeSpace="urn:uuid:">a0805c34-5a0d-4d00-b689-89a56e25d4ec</gml:identifier>
                         <event:timeSlice>
-                            <event:EventTimeSlice gml:id="ts-1">
+                            <event:EventTimeSlice gml:id="ID_GEN_00001_01">
                                 <gml:validTime>
-                                    <gml:TimePeriod gml:id="tp-1">
-                                        <gml:beginPosition>2022-02-01T11:00:00Z</gml:beginPosition>
-                                        <gml:endPosition>2022-02-08T12:00:00Z</gml:endPosition>
+                                    <gml:TimePeriod gml:id="ID_GEN_00001_02">
+                                        <gml:beginPosition>2026-01-07T10:35:25Z</gml:beginPosition>
+                                        <gml:endPosition>2026-01-09T22:35:25Z</gml:endPosition>
                                     </gml:TimePeriod>
                                 </gml:validTime>
+                                <aixm:interpretation>BASELINE</aixm:interpretation>
+                                <aixm:sequenceNumber>1</aixm:sequenceNumber>
+                                <aixm:correctionNumber>0</aixm:correctionNumber>
+                                <aixm:featureLifetime>
+                                    <gml:TimePeriod gml:id="ID_GEN_00001_03">
+                                        <gml:beginPosition>2026-01-07T10:35:25Z</gml:beginPosition>
+                                        <gml:endPosition>2026-01-09T22:35:25Z</gml:endPosition>
+                                    </gml:TimePeriod>
+                                </aixm:featureLifetime>
                                 <event:scenario>AD.CLS</event:scenario>
+                                <event:version>2.0</event:version>
+                                <event:concernedAirportHeliport xlink:href="urn:uuid:1b54b2d6-a5ff-4e57-94c2-f4047a381c64" xlink:title="AMSTERDAM/SCHIPHOL"/>
                                 <event:notification>
-                                    <event:NOTAM gml:id="notam-1">
-                                        <event:series>B</event:series>
-                                        <event:number>214</event:number>
-                                        <event:year>2022</event:year>
+                                    <event:NOTAM gml:id="ID_GEN_00001_04">
+                                        <event:series>A</event:series>
+                                        <event:number>3871</event:number>
+                                        <event:year>2026</event:year>
                                         <event:type>N</event:type>
-                                        <event:affectedFIR>EAAD</event:affectedFIR>
-                                        <event:location>EADD</event:location>
-                                        <event:text>AD closed.</event:text>
+                                        <event:affectedFIR>EDGG</event:affectedFIR>
+                                        <event:location>EHAM</event:location>
+                                        <event:text>AD closed due to security incident.</event:text>
                                     </event:NOTAM>
                                 </event:notification>
                             </event:EventTimeSlice>
@@ -123,7 +135,8 @@ class DnotamConsumerTest {
     private static final String XML_NO_EVENT = """
             <?xml version="1.0" encoding="UTF-8"?>
             <message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1.1/message"
-                xmlns:aixm="http://www.aixm.aero/schema/5.1.1" xmlns:gml="http://www.opengis.net/gml/3.2">
+                xmlns:aixm="http://www.aixm.aero/schema/5.1.1" xmlns:gml="http://www.opengis.net/gml/3.2"
+                gml:id="M00002">
                 <message:hasMember>
                     <aixm:AirportHeliport gml:id="uuid.1b54b2d6"/>
                 </message:hasMember>
@@ -133,7 +146,8 @@ class DnotamConsumerTest {
     private static final String XML_NO_SCENARIO = """
             <?xml version="1.0" encoding="UTF-8"?>
             <message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1.1/message"
-                xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:event="http://www.aixm.aero/schema/5.1.1/event">
+                xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:event="http://www.aixm.aero/schema/5.1.1/event"
+                gml:id="M00003">
                 <message:hasMember>
                     <event:Event gml:id="evt-no-scenario">
                         <event:timeSlice>
@@ -170,12 +184,23 @@ class DnotamConsumerTest {
             <message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1.1/message"
                 xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:aixm="http://www.aixm.aero/schema/5.1.1"
                 xmlns:event="http://www.aixm.aero/schema/5.1.1/event" xmlns:xlink="http://www.w3.org/1999/xlink"
-                gml:id="M00001">
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.aixm.aero/schema/5.1.1/message http://www.aixm.aero/schema/5.1.1/message/AIXM_BasicMessage.xsd
+                http://www.aixm.aero/schema/5.1.1/event http://www.aixm.aero/schema/5.1.1/event/version_5.1.1-j/Event_Features.xsd"
+                gml:id="M00004">
                 <message:hasMember>
                     <aixm:AirportHeliport gml:id="uuid.1b54b2d6-a5ff-4e57-94c2-f4047a381c64">
                         <aixm:timeSlice>
                             <aixm:AirportHeliportTimeSlice gml:id="ID_ACT_55">
+                                <gml:validTime>
+                                    <gml:TimePeriod gml:id="tp-ah-1">
+                                        <gml:beginPosition>2022-02-01T11:00:00Z</gml:beginPosition>
+                                        <gml:endPosition>2022-02-08T12:00:00Z</gml:endPosition>
+                                    </gml:TimePeriod>
+                                </gml:validTime>
                                 <aixm:interpretation>TEMPDELTA</aixm:interpretation>
+                                <aixm:sequenceNumber>1</aixm:sequenceNumber>
+                                <aixm:correctionNumber>0</aixm:correctionNumber>
                             </aixm:AirportHeliportTimeSlice>
                         </aixm:timeSlice>
                     </aixm:AirportHeliport>
@@ -191,6 +216,14 @@ class DnotamConsumerTest {
                                     </gml:TimePeriod>
                                 </gml:validTime>
                                 <aixm:interpretation>BASELINE</aixm:interpretation>
+                                <aixm:sequenceNumber>1</aixm:sequenceNumber>
+                                <aixm:correctionNumber>0</aixm:correctionNumber>
+                                <aixm:featureLifetime>
+                                    <gml:TimePeriod gml:id="IDE_ACT_83">
+                                        <gml:beginPosition>2022-02-01T11:00:00Z</gml:beginPosition>
+                                        <gml:endPosition>2022-02-08T12:00:00Z</gml:endPosition>
+                                    </gml:TimePeriod>
+                                </aixm:featureLifetime>
                                 <event:scenario>AD.CLS</event:scenario>
                                 <event:notification>
                                     <event:NOTAM gml:id="IDE_ACT_84">
@@ -214,20 +247,27 @@ class DnotamConsumerTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1.1/message"
                 xmlns:aixm="http://www.aixm.aero/schema/5.1.1"
-                xmlns:gml="http://www.opengis.net/gml/3.2">
+                xmlns:gml="http://www.opengis.net/gml/3.2"
+                gml:id="M00005">
                 <message:hasMember>
                     <aixm:AirportHeliport gml:id="uuid.1b54b2d6">
                         <aixm:timeSlice>
                             <aixm:AirportHeliportTimeSlice gml:id="ID_1">
+                                <gml:validTime>
+                                    <gml:TimePeriod gml:id="tp-ah-2">
+                                        <gml:beginPosition>2022-02-01T11:00:00Z</gml:beginPosition>
+                                        <gml:endPosition>2022-02-08T12:00:00Z</gml:endPosition>
+                                    </gml:TimePeriod>
+                                </gml:validTime>
                                 <aixm:interpretation>BASELINE</aixm:interpretation>
+                                <aixm:sequenceNumber>1</aixm:sequenceNumber>
+                                <aixm:correctionNumber>0</aixm:correctionNumber>
                             </aixm:AirportHeliportTimeSlice>
                         </aixm:timeSlice>
                     </aixm:AirportHeliport>
                 </message:hasMember>
             </message:AIXMBasicMessage>
             """;
-
-    private static JAXBContext testJaxbContext;
 
     private DnotamEventProcessingUseCase eventProcessor;
     private MongoEventStore repository;
@@ -240,15 +280,6 @@ class DnotamConsumerTest {
     private SimpleMeterRegistry meterRegistry;
     private SubscriptionFilterCache filterCache;
 
-    @BeforeAll
-    static void initJaxbContext() throws Exception {
-        testJaxbContext = JAXBContext.newInstance(
-                aero.aixm.message.ObjectFactory.class,
-                aero.aixm.event.ObjectFactory.class,
-                aero.aixm.ObjectFactory.class,
-                net.opengis.gml.ObjectFactory.class);
-    }
-
     @BeforeEach
     void setup(TestInfo testInfo) throws Exception {
         System.out.printf("%n══ ▶ %s.%s%n", getClass().getSimpleName(), testInfo.getDisplayName());
@@ -260,13 +291,7 @@ class DnotamConsumerTest {
         idempotencyCache = mock(AbstractIdempotencyCache.class);
         deadLetterService = mock(AbstractDeadLetterService.class);
         outboxRouterFanOut = mock(OutboxRouterFanOut.class);
-        jaxbPool = mock(DnotamJaxbUnmarshallerPool.class);
-
-        when(jaxbPool.unmarshalAndValidate(VALID_DNOTAM_XML)).thenReturn(unmarshal(VALID_DNOTAM_XML));
-        when(jaxbPool.unmarshalAndValidate(XML_NO_EVENT)).thenReturn(unmarshal(XML_NO_EVENT));
-        when(jaxbPool.unmarshalAndValidate(XML_NO_SCENARIO)).thenReturn(unmarshal(XML_NO_SCENARIO));
-        when(jaxbPool.unmarshalAndValidate(AIXM_WITH_EVENT_AND_AIRPORT)).thenReturn(unmarshal(AIXM_WITH_EVENT_AND_AIRPORT));
-        when(jaxbPool.unmarshalAndValidate(AIXM_AIRPORT_ONLY_NO_EVENT)).thenReturn(unmarshal(AIXM_AIRPORT_ONLY_NO_EVENT));
+        jaxbPool = new DnotamJaxbUnmarshallerPool();
 
         filterCache = new SubscriptionFilterCache();
         @SuppressWarnings("unchecked")
@@ -284,11 +309,6 @@ class DnotamConsumerTest {
                 metrics, meterRegistry, subscriptionStore, interceptors);
     }
 
-    private static AIXMBasicMessageType unmarshal(String xml) throws Exception {
-        var unmarshaller = testJaxbContext.createUnmarshaller();
-        Object result = JAXBIntrospector.getValue(unmarshaller.unmarshal(new StringReader(xml)));
-        return (AIXMBasicMessageType) result;
-    }
 
     // ── Event Processing Pipeline ────────────────────────────────────────
 
@@ -343,10 +363,8 @@ class DnotamConsumerTest {
      * or malicious payloads entering the ATM data pipeline.
      */
     @Test
-    void invalidXmlIsSentToDeadLetterQueue() throws Exception {
+    void invalidXmlIsSentToDeadLetterQueue() {
         String badXml = "<broken>not-aixm</broken>";
-        when(jaxbPool.unmarshalAndValidate(badXml))
-                .thenThrow(new XmlValidationException("XML validation failed: element 'broken' not expected"));
 
         ProcessingOutcome outcome = eventProcessor.processAndPersistSingleMessage(
                 "sub-1", "q-1", "msg-bad", badXml, 0);
@@ -475,7 +493,7 @@ class DnotamConsumerTest {
 
     @Test
     void extractReturnsFilterMetadataFromAixmMessage() throws Exception {
-        AIXMBasicMessageType message = unmarshal(AIXM_WITH_EVENT_AND_AIRPORT);
+        AIXMBasicMessageType message = jaxbPool.unmarshalAndValidate(AIXM_WITH_EVENT_AND_AIRPORT);
         List<Optional<EventData>> results = eventExtractor.extract(message);
 
         assertThat(results).hasSize(1);
@@ -488,7 +506,7 @@ class DnotamConsumerTest {
 
     @Test
     void extractReturnsEmptyOptionalWhenNoEventElement() throws Exception {
-        AIXMBasicMessageType message = unmarshal(AIXM_AIRPORT_ONLY_NO_EVENT);
+        AIXMBasicMessageType message = jaxbPool.unmarshalAndValidate(AIXM_AIRPORT_ONLY_NO_EVENT);
         List<Optional<EventData>> results = eventExtractor.extract(message);
 
         assertThat(results).hasSize(1);
