@@ -42,7 +42,6 @@ make jvm
 - **NEVER** use `-Dmaven.test.skip=true` — use `-DskipTests` (compiles tests, catches compilation errors).
 - **NEVER** run `mvn verify` without `-DskipITs=false` — integration tests are skipped by default (`<skipITs>true</skipITs>` in pom.xml).
 - **NEVER** run integration tests of multiple projects in parallel — Testcontainers bind to host ports.
-- Container runtime is **Podman**, not Docker.
 
 ## Sibling Dependencies
 
@@ -93,14 +92,5 @@ AMQP broker -> `DnotamInboxMessageHandler` -> Kafka inbox topic -> `DnotamEventP
 
 ## Code Standards
 
-- Logging: always `@Slf4j` (Lombok). Never `LoggerFactory.getLogger()`.
-- Max 400 lines per Java file.
-- No inner/nested classes — every class in its own file.
-- No comments in code.
-- No Java Reflection (no `Field.setAccessible`, nowhere).
 - Tests use RestAssured for HTTP and AssertJ for assertions.
 - JSON processing in shell: `jq` only (no Python, no Node).
-
-## Test Integrity
-
-**NEVER change production code, disable features, or remove functionality to make a test pass.** If a test fails, investigate the real bug. Ask before touching production code for test reasons.
